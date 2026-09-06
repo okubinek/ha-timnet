@@ -4,8 +4,8 @@
   "codeowners": ["@okubinek"],
   "config_flow": true,
   "documentation": "https://github.com/okubinek/ha-timnet",
-  "issue_tracker": "https://github.com/okubinek/ha-timnet/issues",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/okubinek/ha-timnet/issues",
   "requirements": ["pymodbus>=3.6.0"],
   "version": "0.2.0"
 }
