@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1
+
+### Fixed
+
+- `icons.json` schema wrapped under `entity` so hassfest validation passes
+- `manifest.json` key order for hassfest
+- GitHub repository topics so HACS Action topics check passes
+
 ## 0.2.0
 
 ### Added
