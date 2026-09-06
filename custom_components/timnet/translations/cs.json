@@ -1,0 +1,180 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "TimNet",
+        "description": "Připojení k regulaci hoření TimNet (Modbus TCP).",
+        "data": {
+          "name": "Název",
+          "host": "IP adresa",
+          "port": "Port",
+          "slave_id": "Unit ID",
+          "scan_interval": "Interval čtení (s, max 10)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nelze se připojit k zařízení",
+      "connect_failed": "Připojení selhalo",
+      "read_failed": "Připojeno, ale nelze číst registry",
+      "unknown": "Neočekávaná chyba"
+    },
+    "abort": {
+      "already_configured": "Zařízení je již nastaveno"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Možnosti TimNet",
+        "data": {
+          "scan_interval": "Interval čtení (s, max 10)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature_t1": { "name": "Teplota T1" },
+      "burn_duration": { "name": "Doba hoření" },
+      "damper_position": { "name": "Poloha klapky" },
+      "door": {
+        "name": "Dvířka",
+        "state": { "open": "Otevřeno", "closed": "Zavřeno" }
+      },
+      "mode": {
+        "name": "Režim hoření",
+        "state": {
+          "eco": "Eco",
+          "standard": "Standard",
+          "turbo": "Turbo",
+          "unknown": "Neznámý"
+        }
+      },
+      "fuel": {
+        "name": "Palivo",
+        "state": {
+          "wood": "Dřevo",
+          "briquettes": "Brikety",
+          "unknown": "Neznámé"
+        }
+      },
+      "reload_offset": {
+        "name": "Posun přiložení",
+        "state": {
+          "m2": "-2",
+          "m1": "-1",
+          "standard": "Standard",
+          "p1": "+1",
+          "p2": "+2",
+          "unknown": "Neznámý"
+        }
+      },
+      "sds": {
+        "name": "SDS",
+        "state": {
+          "off": "Vypnuto",
+          "m2_active": "-2 (aktivní)",
+          "m2_inactive": "-2 (neaktivní)",
+          "m1_active": "-1 (aktivní)",
+          "m1_inactive": "-1 (neaktivní)",
+          "standard_active": "Standard (aktivní)",
+          "standard_inactive": "Standard (neaktivní)",
+          "p1_active": "+1 (aktivní)",
+          "p1_inactive": "+1 (neaktivní)",
+          "p2_active": "+2 (aktivní)",
+          "p2_inactive": "+2 (neaktivní)",
+          "unknown": "Neznámé"
+        }
+      },
+      "temperature_colour": {
+        "name": "Barva teploty",
+        "state": {
+          "none": "Bez barvy (nezatopeno)",
+          "yellow": "Žlutá (nízká)",
+          "green": "Zelená (optimální)",
+          "red": "Červená (přetopeno)",
+          "unknown": "Neznámá"
+        }
+      },
+      "fault": {
+        "name": "Porucha",
+        "state": {
+          "none": "Bez poruchy",
+          "t1": "Porucha čidla T1",
+          "t2": "Porucha čidla T2",
+          "door": "Dlouho otevřená dvířka",
+          "t1_t2": "Porucha čidel T1+T2",
+          "t1_door": "Porucha T1 + dlouho otevřená dvířka",
+          "t2_door": "Porucha T2 + dlouho otevřená dvířka",
+          "t1_t2_door": "Porucha T1+T2 + dlouho otevřená dvířka"
+        }
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "power_start": "Start napájení",
+          "idle_100": "Klidový stav 100%",
+          "idle_0": "Klidový stav 0%",
+          "lighting": "Zatápění",
+          "start_regulation": "Start regulace",
+          "burning_rising": "Hoření (vzrůstající teplota)",
+          "burning_falling": "Hoření (klesající teplota)",
+          "reload": "Přiložit",
+          "ember": "Žárový proces",
+          "not_lit": "Nezatopeno",
+          "overheated": "Přetopeno",
+          "door_open_long": "Dlouho otevřená dvířka",
+          "test_mode": "Testovací režim",
+          "temp_fault": "Porucha teploty",
+          "unknown": "Neznámý stav"
+        }
+      },
+      "reload_count": { "name": "Celkový počet přiložení" }
+    },
+    "switch": {
+      "beep": { "name": "Zvuková signalizace" }
+    },
+    "select": {
+      "mode_select": {
+        "name": "Nastavení režimu hoření",
+        "state": {
+          "eco": "Eco",
+          "standard": "Standard",
+          "turbo": "Turbo"
+        }
+      },
+      "fuel_select": {
+        "name": "Nastavení paliva",
+        "state": {
+          "wood": "Dřevo",
+          "briquettes": "Brikety"
+        }
+      },
+      "reload_offset_select": {
+        "name": "Nastavení posunu přiložení",
+        "state": {
+          "m2": "-2",
+          "m1": "-1",
+          "standard": "Standard",
+          "p1": "+1",
+          "p2": "+2"
+        }
+      },
+      "sds_select": {
+        "name": "Nastavení SDS",
+        "state": {
+          "m2": "-2",
+          "m1": "-1",
+          "standard": "Standard",
+          "p1": "+1",
+          "p2": "+2",
+          "off": "Vypnuto"
+        }
+      }
+    },
+    "button": {
+      "start_regulation": { "name": "Start hoření" }
+    }
+  }
+}

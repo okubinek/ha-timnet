@@ -1,0 +1,195 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "TimNet",
+        "description": "Connect to TimNet combustion controller (Modbus TCP).",
+        "data": {
+          "name": "Name",
+          "host": "IP address",
+          "port": "Port",
+          "slave_id": "Unit ID",
+          "scan_interval": "Poll interval (seconds, max 10)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the device",
+      "connect_failed": "Connection failed",
+      "read_failed": "Connected but could not read registers",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "TimNet options",
+        "data": {
+          "scan_interval": "Poll interval (seconds, max 10)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature_t1": { "name": "Temperature T1" },
+      "burn_duration": { "name": "Burn duration" },
+      "damper_position": { "name": "Damper position" },
+      "door": {
+        "name": "Door",
+        "state": {
+          "open": "Open",
+          "closed": "Closed"
+        }
+      },
+      "mode": {
+        "name": "Burn mode",
+        "state": {
+          "eco": "Eco",
+          "standard": "Standard",
+          "turbo": "Turbo",
+          "unknown": "Unknown"
+        }
+      },
+      "fuel": {
+        "name": "Fuel",
+        "state": {
+          "wood": "Wood",
+          "briquettes": "Briquettes",
+          "unknown": "Unknown"
+        }
+      },
+      "reload_offset": {
+        "name": "Reload offset",
+        "state": {
+          "m2": "-2",
+          "m1": "-1",
+          "standard": "Standard",
+          "p1": "+1",
+          "p2": "+2",
+          "unknown": "Unknown"
+        }
+      },
+      "sds": {
+        "name": "SDS",
+        "state": {
+          "off": "Off",
+          "m2_active": "-2 (active)",
+          "m2_inactive": "-2 (inactive)",
+          "m1_active": "-1 (active)",
+          "m1_inactive": "-1 (inactive)",
+          "standard_active": "Standard (active)",
+          "standard_inactive": "Standard (inactive)",
+          "p1_active": "+1 (active)",
+          "p1_inactive": "+1 (inactive)",
+          "p2_active": "+2 (active)",
+          "p2_inactive": "+2 (inactive)",
+          "unknown": "Unknown"
+        }
+      },
+      "temperature_colour": {
+        "name": "Temperature colour",
+        "state": {
+          "none": "None (not lit)",
+          "yellow": "Yellow (low)",
+          "green": "Green (optimal)",
+          "red": "Red (overheated)",
+          "unknown": "Unknown"
+        }
+      },
+      "fault": {
+        "name": "Fault",
+        "state": {
+          "none": "No fault",
+          "t1": "Sensor T1 fault",
+          "t2": "Sensor T2 fault",
+          "door": "Door open too long",
+          "t1_t2": "Sensors T1+T2 fault",
+          "t1_door": "T1 fault + door open too long",
+          "t2_door": "T2 fault + door open too long",
+          "t1_t2_door": "T1+T2 fault + door open too long"
+        }
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "power_start": "Power start",
+          "idle_100": "Idle 100%",
+          "idle_0": "Idle 0%",
+          "lighting": "Lighting",
+          "start_regulation": "Start regulation",
+          "burning_rising": "Burning (rising temperature)",
+          "burning_falling": "Burning (falling temperature)",
+          "reload": "Reload",
+          "ember": "Ember process",
+          "not_lit": "Not lit",
+          "overheated": "Overheated",
+          "door_open_long": "Door open too long",
+          "test_mode": "Test mode",
+          "temp_fault": "Temperature fault",
+          "unknown": "Unknown"
+        }
+      },
+      "reload_count": { "name": "Total reloads" }
+    },
+    "switch": {
+      "beep": { "name": "Acoustic signalling" }
+    },
+    "select": {
+      "mode_select": {
+        "name": "Set burn mode",
+        "state": {
+          "eco": "Eco",
+          "standard": "Standard",
+          "turbo": "Turbo"
+        }
+      },
+      "fuel_select": {
+        "name": "Set fuel",
+        "state": {
+          "wood": "Wood",
+          "briquettes": "Briquettes"
+        }
+      },
+      "reload_offset_select": {
+        "name": "Set reload offset",
+        "state": {
+          "m2": "-2",
+          "m1": "-1",
+          "standard": "Standard",
+          "p1": "+1",
+          "p2": "+2"
+        }
+      },
+      "sds_select": {
+        "name": "Set SDS",
+        "state": {
+          "m2": "-2",
+          "m1": "-1",
+          "standard": "Standard",
+          "p1": "+1",
+          "p2": "+2",
+          "off": "Off"
+        }
+      }
+    },
+    "button": {
+      "start_regulation": { "name": "Start burning" }
+    }
+  },
+  "services": {
+    "start_regulation": {
+      "name": "Start regulation",
+      "description": "Start TimNet combustion regulation (START register = 1).",
+      "fields": {
+        "entry_id": {
+          "name": "Config entry ID",
+          "description": "Optional when only one TimNet device is configured."
+        }
+      }
+    }
+  }
+}

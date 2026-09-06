@@ -1,0 +1,11 @@
+# Service definitions for TimNet
+start_regulation:
+  name: Start regulation
+  description: Start TimNet combustion regulation (write START register = 1).
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional TimNet config entry ID when multiple devices exist.
+      required: false
+      selector:
+        text:
