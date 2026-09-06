@@ -11,6 +11,7 @@ from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 
 from .const import (
+    CONF_MODEL,
     CONF_SCAN_INTERVAL,
     CONF_SLAVE_ID,
     DEFAULT_SCAN_INTERVAL,
@@ -29,6 +30,16 @@ from .modbus_client import TimNetModbusClient
 _LOGGER = logging.getLogger(__name__)
 
 
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old config entries to version 2 (add model)."""
+    if config_entry.version < 2:
+        data = {**config_entry.data}
+        data.setdefault(CONF_MODEL, MODEL_100)
+        hass.config_entries.async_update_entry(config_entry, data=data, version=2)
+        _LOGGER.info("Migrated TimNet entry %s to version 2", config_entry.entry_id)
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up TimNet from a config entry."""
     hass.data.setdefault(DOMAIN, {})
@@ -37,6 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     port = int(entry.data.get(CONF_PORT, 502))
     slave_id = int(entry.data.get(CONF_SLAVE_ID, DEFAULT_SLAVE_ID))
     name = entry.data.get(CONF_NAME, "TimNet")
+    model = entry.data.get(CONF_MODEL, MODEL_100)
     scan_interval = int(
         entry.options.get(
             CONF_SCAN_INTERVAL,
@@ -57,7 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "identifiers": {(DOMAIN, device_unique_id)},
         "name": name,
         "manufacturer": MANUFACTURER,
-        "model": MODEL_100,
+        "model": model,
     }
 
     device_registry = dr.async_get(hass)
@@ -71,6 +83,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "coordinator": coordinator,
         "device_info": device_info,
         "device_unique_id": device_unique_id,
+        "entry": entry,
+        "model": model,
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

@@ -3,12 +3,29 @@
     "step": {
       "user": {
         "title": "TimNet",
-        "description": "Connect to TimNet combustion controller (Modbus TCP).",
+        "description": "Connect to a Timpex TimNet combustion controller over Modbus TCP.\n\nRequires the paid Wi‑Fi / smart-home module. Use only one Modbus client per unit and keep the poll interval at most 10 seconds (the device closes idle TCP connections).",
         "data": {
           "name": "Name",
           "host": "IP address",
           "port": "Port",
           "slave_id": "Unit ID",
+          "model": "Model",
+          "scan_interval": "Poll interval (seconds, max 10)"
+        },
+        "data_description": {
+          "model": "TimNet 200 adds temperature T2 and two relay status sensors.",
+          "scan_interval": "Must stay ≤ 10 s so the unit does not drop the TCP session."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure TimNet",
+        "description": "Update connection settings or model. The device will be reloaded after a successful connection test.",
+        "data": {
+          "name": "Name",
+          "host": "IP address",
+          "port": "Port",
+          "slave_id": "Unit ID",
+          "model": "Model",
           "scan_interval": "Poll interval (seconds, max 10)"
         }
       }
@@ -20,15 +37,22 @@
       "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "Device is already configured",
+      "reconfigure_successful": "Reconfiguration successful",
+      "unique_id_mismatch": "This connection points to a different device than the one being reconfigured"
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "TimNet options",
+        "description": "Optional custom names for TimNet 200 entities (T2 / relays). Leave blank to use defaults.",
         "data": {
-          "scan_interval": "Poll interval (seconds, max 10)"
+          "scan_interval": "Poll interval (seconds, max 10)",
+          "model": "Model",
+          "t2_name": "Custom name for T2 temperature",
+          "relay1_name": "Custom name for relay 1",
+          "relay2_name": "Custom name for relay 2"
         }
       }
     }
@@ -36,15 +60,9 @@
   "entity": {
     "sensor": {
       "temperature_t1": { "name": "Temperature T1" },
+      "temperature_t2": { "name": "Temperature T2" },
       "burn_duration": { "name": "Burn duration" },
       "damper_position": { "name": "Damper position" },
-      "door": {
-        "name": "Door",
-        "state": {
-          "open": "Open",
-          "closed": "Closed"
-        }
-      },
       "mode": {
         "name": "Burn mode",
         "state": {
@@ -134,6 +152,12 @@
         }
       },
       "reload_count": { "name": "Total reloads" }
+    },
+    "binary_sensor": {
+      "door": { "name": "Door" },
+      "sds_active": { "name": "SDS active" },
+      "relay_1": { "name": "Relay 1" },
+      "relay_2": { "name": "Relay 2" }
     },
     "switch": {
       "beep": { "name": "Acoustic signalling" }

@@ -21,11 +21,14 @@ from .const import (
     REG_PALIVO,
     REG_PORUCHA,
     REG_PRILOZ,
+    REG_RELE1,
+    REG_RELE2,
     REG_REZIM,
     REG_SDS,
     REG_SER1,
     REG_STAT,
     REG_TT,
+    REG_TT2,
 )
 from .modbus_client import TimNetModbusClient
 
@@ -56,6 +59,7 @@ class TimNetCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         return {
             "t1_raw": regs[REG_TT],
+            "t2_raw": regs[REG_TT2],
             "burn_seconds": regs[REG_CAS],
             "damper": regs[REG_SER1],
             "door": regs[REG_INP],
@@ -65,6 +69,8 @@ class TimNetCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "sds": regs[REG_SDS],
             "colour": regs[REG_BARVA],
             "beep": regs[REG_BEEP_R],
+            "rele1": regs[REG_RELE1],
+            "rele2": regs[REG_RELE2],
             "fault": regs[REG_PORUCHA],
             "status": regs[REG_STAT],
             "reload_count": regs[REG_P_LIFE],

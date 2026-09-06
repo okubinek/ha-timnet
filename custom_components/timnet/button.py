@@ -10,7 +10,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, REG_START_W, WRITE_START
+from .const import DOMAIN, REG_START_W, STATUS_MAP, WRITE_START
 from .coordinator import TimNetCoordinator
 from .modbus_client import TimNetModbusClient
 
@@ -52,6 +52,15 @@ class TimNetStartButton(CoordinatorEntity[TimNetCoordinator], ButtonEntity):
         self._client = client
         self._attr_unique_id = f"{device_unique_id}_start_regulation"
         self._attr_device_info = DeviceInfo(**device_info)
+
+    @property
+    def icon(self) -> str:
+        status = STATUS_MAP.get((self.coordinator.data or {}).get("status"))
+        if status in ("burning_rising", "burning_falling", "lighting", "start_regulation"):
+            return "mdi:fire"
+        if status == "reload":
+            return "mdi:plus-box"
+        return "mdi:play-circle"
 
     async def async_press(self) -> None:
         """Start the regulation process."""
