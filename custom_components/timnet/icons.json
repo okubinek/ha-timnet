@@ -1,73 +1,75 @@
 {
-  "sensor": {
-    "temperature_colour": {
-      "default": "mdi:palette",
-      "state": {
-        "none": "mdi:circle-outline",
-        "yellow": "mdi:circle",
-        "green": "mdi:circle",
-        "red": "mdi:circle"
+  "entity": {
+    "sensor": {
+      "temperature_colour": {
+        "default": "mdi:palette",
+        "state": {
+          "none": "mdi:circle-outline",
+          "yellow": "mdi:circle",
+          "green": "mdi:circle",
+          "red": "mdi:circle"
+        }
+      },
+      "fault": {
+        "default": "mdi:alert",
+        "state": {
+          "none": "mdi:check-circle-outline"
+        }
+      },
+      "status": {
+        "default": "mdi:information-outline",
+        "state": {
+          "power_start": "mdi:power",
+          "idle_100": "mdi:valve-open",
+          "idle_0": "mdi:valve-closed",
+          "lighting": "mdi:fire",
+          "start_regulation": "mdi:play-circle",
+          "burning_rising": "mdi:fire",
+          "burning_falling": "mdi:fire-off",
+          "reload": "mdi:plus-box",
+          "ember": "mdi:fire",
+          "not_lit": "mdi:fireplace-off",
+          "overheated": "mdi:thermometer-alert",
+          "door_open_long": "mdi:door-open",
+          "test_mode": "mdi:test-tube",
+          "temp_fault": "mdi:thermometer-alert"
+        }
       }
     },
-    "fault": {
-      "default": "mdi:alert",
-      "state": {
-        "none": "mdi:check-circle-outline"
+    "binary_sensor": {
+      "door": {
+        "default": "mdi:door",
+        "state": {
+          "on": "mdi:door-open",
+          "off": "mdi:door-closed"
+        }
+      },
+      "sds_active": {
+        "default": "mdi:motion-sensor",
+        "state": {
+          "on": "mdi:motion-sensor",
+          "off": "mdi:motion-sensor-off"
+        }
+      },
+      "relay_1": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch-closed",
+          "off": "mdi:electric-switch"
+        }
+      },
+      "relay_2": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch-closed",
+          "off": "mdi:electric-switch"
+        }
       }
     },
-    "status": {
-      "default": "mdi:information-outline",
-      "state": {
-        "power_start": "mdi:power",
-        "idle_100": "mdi:valve-open",
-        "idle_0": "mdi:valve-closed",
-        "lighting": "mdi:fire",
-        "start_regulation": "mdi:play-circle",
-        "burning_rising": "mdi:fire",
-        "burning_falling": "mdi:fire-off",
-        "reload": "mdi:plus-box",
-        "ember": "mdi:fire",
-        "not_lit": "mdi:fireplace-off",
-        "overheated": "mdi:thermometer-alert",
-        "door_open_long": "mdi:door-open",
-        "test_mode": "mdi:test-tube",
-        "temp_fault": "mdi:thermometer-alert"
+    "button": {
+      "start_regulation": {
+        "default": "mdi:play-circle"
       }
-    }
-  },
-  "binary_sensor": {
-    "door": {
-      "default": "mdi:door",
-      "state": {
-        "on": "mdi:door-open",
-        "off": "mdi:door-closed"
-      }
-    },
-    "sds_active": {
-      "default": "mdi:motion-sensor",
-      "state": {
-        "on": "mdi:motion-sensor",
-        "off": "mdi:motion-sensor-off"
-      }
-    },
-    "relay_1": {
-      "default": "mdi:electric-switch",
-      "state": {
-        "on": "mdi:electric-switch-closed",
-        "off": "mdi:electric-switch"
-      }
-    },
-    "relay_2": {
-      "default": "mdi:electric-switch",
-      "state": {
-        "on": "mdi:electric-switch-closed",
-        "off": "mdi:electric-switch"
-      }
-    }
-  },
-  "button": {
-    "start_regulation": {
-      "default": "mdi:play-circle"
     }
   }
 }
