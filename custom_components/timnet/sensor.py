@@ -20,16 +20,19 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     COLOUR_MAP,
+    CONF_MODEL,
+    CONF_T2_NAME,
     DAMPER_INIT,
     DOMAIN,
-    DOOR_OPEN,
     FUEL_MAP,
     MODE_MAP,
+    MODEL_100,
     RELOAD_MAP,
     SDS_SENSITIVITY_MAP,
     STATUS_MAP,
     TEMP_SPECIAL_LABELS,
     TEMP_SPECIALS,
+    model_supports_t2,
 )
 from .coordinator import TimNetCoordinator
 
@@ -39,11 +42,9 @@ class TimNetSensorDescription(SensorEntityDescription):
     """TimNet sensor description."""
 
     value_fn: Callable[[dict[str, Any]], Any]
-    enum_map: dict[int, str] | None = None
-
-
-def _door_value(data: dict[str, Any]) -> str:
-    return "open" if data.get("door") == DOOR_OPEN else "closed"
+    icon_fn: Callable[[dict[str, Any]], str] | None = None
+    requires_t2: bool = False
+    diagnostic_duplicate: bool = False
 
 
 def _damper_value(data: dict[str, Any]) -> int | str:
@@ -78,21 +79,67 @@ def _fault_value(data: dict[str, Any]) -> str:
     return "_".join(parts) if parts else f"code_{code}"
 
 
-def _temp_value(data: dict[str, Any]) -> float | str | None:
-    raw = data.get("t1_raw")
-    if raw is None:
-        return None
-    if raw in TEMP_SPECIALS:
-        return TEMP_SPECIAL_LABELS[raw]
-    return round(raw * 0.1, 1)
+def _temp_from_key(key: str) -> Callable[[dict[str, Any]], float | str | None]:
+    def _temp_value(data: dict[str, Any]) -> float | str | None:
+        raw = data.get(key)
+        if raw is None:
+            return None
+        if raw in TEMP_SPECIALS:
+            return TEMP_SPECIAL_LABELS[raw]
+        return round(raw * 0.1, 1)
+
+    return _temp_value
+
+
+def _colour_icon(data: dict[str, Any]) -> str:
+    colour = COLOUR_MAP.get(data.get("colour"), "none")
+    return {
+        "none": "mdi:circle-outline",
+        "yellow": "mdi:circle",
+        "green": "mdi:circle",
+        "red": "mdi:circle",
+    }.get(colour, "mdi:palette")
+
+
+def _fault_icon(data: dict[str, Any]) -> str:
+    if int(data.get("fault") or 0) == 0:
+        return "mdi:check-circle-outline"
+    return "mdi:alert"
+
+
+def _status_icon(data: dict[str, Any]) -> str:
+    status = STATUS_MAP.get(data.get("status"), "unknown")
+    return {
+        "power_start": "mdi:power",
+        "idle_100": "mdi:valve-open",
+        "idle_0": "mdi:valve-closed",
+        "lighting": "mdi:fire",
+        "start_regulation": "mdi:play-circle",
+        "burning_rising": "mdi:fire",
+        "burning_falling": "mdi:fire-off",
+        "reload": "mdi:plus-box",
+        "ember": "mdi:fire",
+        "not_lit": "mdi:fireplace-off",
+        "overheated": "mdi:thermometer-alert",
+        "door_open_long": "mdi:door-open",
+        "test_mode": "mdi:test-tube",
+        "temp_fault": "mdi:thermometer-alert",
+    }.get(status, "mdi:information-outline")
 
 
 SENSORS: tuple[TimNetSensorDescription, ...] = (
     TimNetSensorDescription(
         key="temperature_t1",
         translation_key="temperature_t1",
-        value_fn=_temp_value,
+        value_fn=_temp_from_key("t1_raw"),
         icon="mdi:thermometer",
+    ),
+    TimNetSensorDescription(
+        key="temperature_t2",
+        translation_key="temperature_t2",
+        value_fn=_temp_from_key("t2_raw"),
+        icon="mdi:thermometer-water",
+        requires_t2=True,
     ),
     TimNetSensorDescription(
         key="burn_duration",
@@ -111,20 +158,15 @@ SENSORS: tuple[TimNetSensorDescription, ...] = (
         icon="mdi:valve",
     ),
     TimNetSensorDescription(
-        key="door",
-        translation_key="door",
-        device_class=SensorDeviceClass.ENUM,
-        options=["open", "closed"],
-        value_fn=_door_value,
-        icon="mdi:door",
-    ),
-    TimNetSensorDescription(
         key="mode",
         translation_key="mode",
         device_class=SensorDeviceClass.ENUM,
         options=list(MODE_MAP.values()),
         value_fn=lambda d: MODE_MAP.get(d.get("mode"), "unknown"),
         icon="mdi:fire",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        diagnostic_duplicate=True,
     ),
     TimNetSensorDescription(
         key="fuel",
@@ -133,6 +175,9 @@ SENSORS: tuple[TimNetSensorDescription, ...] = (
         options=list(FUEL_MAP.values()),
         value_fn=lambda d: FUEL_MAP.get(d.get("fuel"), "unknown"),
         icon="mdi:pine-tree",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        diagnostic_duplicate=True,
     ),
     TimNetSensorDescription(
         key="reload_offset",
@@ -141,12 +186,18 @@ SENSORS: tuple[TimNetSensorDescription, ...] = (
         options=list(RELOAD_MAP.values()),
         value_fn=lambda d: RELOAD_MAP.get(d.get("reload"), "unknown"),
         icon="mdi:plus-minus-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        diagnostic_duplicate=True,
     ),
     TimNetSensorDescription(
         key="sds",
         translation_key="sds",
         value_fn=_sds_value,
         icon="mdi:tune-vertical",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        diagnostic_duplicate=True,
     ),
     TimNetSensorDescription(
         key="temperature_colour",
@@ -155,12 +206,14 @@ SENSORS: tuple[TimNetSensorDescription, ...] = (
         options=list(COLOUR_MAP.values()),
         value_fn=lambda d: COLOUR_MAP.get(d.get("colour"), "unknown"),
         icon="mdi:palette",
+        icon_fn=_colour_icon,
     ),
     TimNetSensorDescription(
         key="fault",
         translation_key="fault",
         value_fn=_fault_value,
         icon="mdi:alert",
+        icon_fn=_fault_icon,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     TimNetSensorDescription(
@@ -170,6 +223,7 @@ SENSORS: tuple[TimNetSensorDescription, ...] = (
         options=list(STATUS_MAP.values()),
         value_fn=lambda d: STATUS_MAP.get(d.get("status"), "unknown"),
         icon="mdi:information-outline",
+        icon_fn=_status_icon,
     ),
     TimNetSensorDescription(
         key="reload_count",
@@ -191,11 +245,23 @@ async def async_setup_entry(
     coordinator: TimNetCoordinator = data["coordinator"]
     device_info = data["device_info"]
     device_unique_id = data["device_unique_id"]
+    model = entry.data.get(CONF_MODEL, MODEL_100)
+    t2_name = (entry.options.get(CONF_T2_NAME) or "").strip() or None
 
-    async_add_entities(
-        TimNetSensor(coordinator, device_info, device_unique_id, desc)
-        for desc in SENSORS
-    )
+    entities: list[TimNetSensor] = []
+    for desc in SENSORS:
+        if desc.requires_t2 and not model_supports_t2(model):
+            continue
+        entities.append(
+            TimNetSensor(
+                coordinator,
+                device_info,
+                device_unique_id,
+                desc,
+                name_override=t2_name if desc.key == "temperature_t2" else None,
+            )
+        )
+    async_add_entities(entities)
 
 
 class TimNetSensor(CoordinatorEntity[TimNetCoordinator], SensorEntity):
@@ -209,11 +275,15 @@ class TimNetSensor(CoordinatorEntity[TimNetCoordinator], SensorEntity):
         device_info: dict,
         device_unique_id: str,
         description: TimNetSensorDescription,
+        name_override: str | None = None,
     ) -> None:
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{device_unique_id}_{description.key}"
         self._attr_device_info = DeviceInfo(**device_info)
+        if name_override:
+            self._attr_name = name_override
+            self._attr_translation_key = None
 
     @property
     def native_value(self) -> Any:
@@ -223,14 +293,23 @@ class TimNetSensor(CoordinatorEntity[TimNetCoordinator], SensorEntity):
         return self.entity_description.value_fn(self.coordinator.data)
 
     @property
+    def icon(self) -> str | None:
+        desc = self.entity_description
+        if desc.icon_fn and self.coordinator.data:
+            return desc.icon_fn(self.coordinator.data)
+        return desc.icon
+
+    @property
     def native_unit_of_measurement(self) -> str | None:
         """Unit only when temperature is numeric."""
-        if self.entity_description.key == "temperature_t1":
-            raw = (self.coordinator.data or {}).get("t1_raw")
+        key = self.entity_description.key
+        if key in ("temperature_t1", "temperature_t2"):
+            raw_key = "t1_raw" if key == "temperature_t1" else "t2_raw"
+            raw = (self.coordinator.data or {}).get(raw_key)
             if raw in TEMP_SPECIALS or raw is None:
                 return None
             return UnitOfTemperature.CELSIUS
-        if self.entity_description.key == "damper_position":
+        if key == "damper_position":
             val = (self.coordinator.data or {}).get("damper")
             if val == DAMPER_INIT:
                 return None
@@ -240,8 +319,10 @@ class TimNetSensor(CoordinatorEntity[TimNetCoordinator], SensorEntity):
     @property
     def device_class(self) -> SensorDeviceClass | None:
         """Device class only for numeric temperature."""
-        if self.entity_description.key == "temperature_t1":
-            raw = (self.coordinator.data or {}).get("t1_raw")
+        key = self.entity_description.key
+        if key in ("temperature_t1", "temperature_t2"):
+            raw_key = "t1_raw" if key == "temperature_t1" else "t2_raw"
+            raw = (self.coordinator.data or {}).get(raw_key)
             if raw in TEMP_SPECIALS or raw is None:
                 return None
             return SensorDeviceClass.TEMPERATURE
@@ -249,8 +330,10 @@ class TimNetSensor(CoordinatorEntity[TimNetCoordinator], SensorEntity):
 
     @property
     def state_class(self) -> SensorStateClass | None:
-        if self.entity_description.key == "temperature_t1":
-            raw = (self.coordinator.data or {}).get("t1_raw")
+        key = self.entity_description.key
+        if key in ("temperature_t1", "temperature_t2"):
+            raw_key = "t1_raw" if key == "temperature_t1" else "t2_raw"
+            raw = (self.coordinator.data or {}).get(raw_key)
             if raw in TEMP_SPECIALS or raw is None:
                 return None
             return SensorStateClass.MEASUREMENT

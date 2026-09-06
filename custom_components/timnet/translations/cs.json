@@ -3,12 +3,29 @@
     "step": {
       "user": {
         "title": "TimNet",
-        "description": "Připojení k regulaci hoření TimNet (Modbus TCP).",
+        "description": "Připojení k regulaci hoření Timpex TimNet přes Modbus TCP.\n\nVyžaduje placený Wi‑Fi / smart-home modul. Používejte pouze jednoho Modbus klienta na jednotku a interval čtení max. 10 s (jednotka ukončí nečinné TCP spojení).",
         "data": {
           "name": "Název",
           "host": "IP adresa",
           "port": "Port",
           "slave_id": "Unit ID",
+          "model": "Model",
+          "scan_interval": "Interval čtení (s, max 10)"
+        },
+        "data_description": {
+          "model": "TimNet 200 přidává teplotu T2 a stav dvou relé.",
+          "scan_interval": "Musí zůstat ≤ 10 s, jinak jednotka ukončí TCP spojení."
+        }
+      },
+      "reconfigure": {
+        "title": "Přenastavit TimNet",
+        "description": "Upravte připojení nebo model. Po úspěšném testu se zařízení znovu načte.",
+        "data": {
+          "name": "Název",
+          "host": "IP adresa",
+          "port": "Port",
+          "slave_id": "Unit ID",
+          "model": "Model",
           "scan_interval": "Interval čtení (s, max 10)"
         }
       }
@@ -20,15 +37,22 @@
       "unknown": "Neočekávaná chyba"
     },
     "abort": {
-      "already_configured": "Zařízení je již nastaveno"
+      "already_configured": "Zařízení je již nastaveno",
+      "reconfigure_successful": "Přenastavení úspěšné",
+      "unique_id_mismatch": "Toto připojení neodpovídá přenastavovanému zařízení"
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Možnosti TimNet",
+        "description": "Volitelné vlastní názvy entit TimNet 200 (T2 / relé). Ponechte prázdné pro výchozí názvy.",
         "data": {
-          "scan_interval": "Interval čtení (s, max 10)"
+          "scan_interval": "Interval čtení (s, max 10)",
+          "model": "Model",
+          "t2_name": "Vlastní název teploty T2",
+          "relay1_name": "Vlastní název relé 1",
+          "relay2_name": "Vlastní název relé 2"
         }
       }
     }
@@ -36,12 +60,9 @@
   "entity": {
     "sensor": {
       "temperature_t1": { "name": "Teplota T1" },
+      "temperature_t2": { "name": "Teplota T2" },
       "burn_duration": { "name": "Doba hoření" },
       "damper_position": { "name": "Poloha klapky" },
-      "door": {
-        "name": "Dvířka",
-        "state": { "open": "Otevřeno", "closed": "Zavřeno" }
-      },
       "mode": {
         "name": "Režim hoření",
         "state": {
@@ -132,6 +153,12 @@
       },
       "reload_count": { "name": "Celkový počet přiložení" }
     },
+    "binary_sensor": {
+      "door": { "name": "Dvířka" },
+      "sds_active": { "name": "SDS aktivní" },
+      "relay_1": { "name": "Relé 1" },
+      "relay_2": { "name": "Relé 2" }
+    },
     "switch": {
       "beep": { "name": "Zvuková signalizace" }
     },
@@ -175,6 +202,18 @@
     },
     "button": {
       "start_regulation": { "name": "Start hoření" }
+    }
+  },
+  "services": {
+    "start_regulation": {
+      "name": "Start regulace",
+      "description": "Spustí regulaci hoření TimNet (registr START = 1).",
+      "fields": {
+        "entry_id": {
+          "name": "ID konfigurace",
+          "description": "Volitelné, pokud je nakonfigurováno jen jedno zařízení TimNet."
+        }
+      }
     }
   }
 }

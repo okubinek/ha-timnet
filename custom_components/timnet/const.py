@@ -1,6 +1,6 @@
 """Constants for the TimNet combustion control integration.
 
-Register map per TimNet MODBUS TCP v2.1 (decimal addresses 0000–0015).
+Register map per TimNet MODBUS TCP v2.1 (TimNet 100/200, decimal 0000–0015).
 """
 
 from __future__ import annotations
@@ -8,25 +8,32 @@ from __future__ import annotations
 from homeassistant.const import Platform
 
 DOMAIN = "timnet"
-MANUFACTURER = "TimNet"
+MANUFACTURER = "Timpex"
 MODEL_100 = "TimNet 100"
+MODEL_200 = "TimNet 200"
+MODELS = (MODEL_100, MODEL_200)
 DEFAULT_NAME = "TimNet"
 DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID = 1
 # Device closes TCP if idle >10 s (manual §1.1.2)
 DEFAULT_SCAN_INTERVAL = 5
 
+CONF_MODEL = "model"
 CONF_SLAVE_ID = "slave_id"
 CONF_SCAN_INTERVAL = "scan_interval"
+CONF_T2_NAME = "t2_name"
+CONF_RELAY1_NAME = "relay1_name"
+CONF_RELAY2_NAME = "relay2_name"
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
+    Platform.BINARY_SENSOR,
     Platform.SWITCH,
     Platform.SELECT,
     Platform.BUTTON,
 ]
 
-# --- Read holding registers (0x03 / 0x04) ---
+# --- Read holding registers (0x03 / 0x04) — TimNet 100/200 ---
 REG_TT = 0  # T1 temperature ×10
 REG_TT2 = 1  # T2 (TimNet 200 only)
 REG_CAS = 2  # burn duration seconds
@@ -76,6 +83,7 @@ TEMP_SPECIAL_LABELS = {
 
 DOOR_OPEN = 255
 DAMPER_INIT = 255
+RELAY_ON = 1
 
 STATUS_MAP = {
     0: "power_start",
@@ -114,3 +122,8 @@ SDS_SENSITIVITY_MAP = {1: "m2", 2: "m1", 3: "standard", 4: "p1", 5: "p2"}
 SDS_WRITE = {"m2": 1, "m1": 2, "standard": 3, "p1": 4, "p2": 5, "off": 255}
 
 SERVICE_START_REGULATION = "start_regulation"
+
+
+def model_supports_t2(model: str) -> bool:
+    """Return True if the model exposes T2 / relays."""
+    return model == MODEL_200
